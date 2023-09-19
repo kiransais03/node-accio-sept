@@ -15,6 +15,10 @@ const Todo = new Schema({
     default: Date.now(),
     require: true,
   },
+  username: {
+    type: String,
+    require: true,
+  },
 });
 
 module.exports = Mongoose.model("todos", Todo);

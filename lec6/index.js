@@ -5,11 +5,19 @@ const bcrypt = require("bcrypt");
 const app = express();
 const { isUserExisting } = require("./utils/UsernameCheck");
 const User = require("./model/UserSchema");
+const { LoggerMiddleware } = require("./middleware/LoggerMiddleware");
+const { isAuth } = require("./middleware/AuthMiddleware");
+const jwt = require("jsonwebtoken");
 
 app.use(express.json());
+app.use(LoggerMiddleware);
 
 const PORT = process.env.PORT;
 const SALT_ROUNDS = 15;
+
+app.get("/hello", (req, res) => {
+  res.send("Hello world!");
+});
 
 // POST - Register User
 app.post("/register", async (req, res) => {
@@ -55,7 +63,7 @@ app.post("/login", async (req, res) => {
   try {
     userData = await User.findOne({ username: loginBody.username });
   } catch (err) {
-    res.status(400).send({
+    return res.status(400).send({
       status: 400,
       messsage: "User fetching failed!",
     });
@@ -69,19 +77,28 @@ app.post("/login", async (req, res) => {
       userData.password
     );
   } catch (err) {
-    res.status(400).send({
+    return res.status(400).send({
       status: 400,
       messsage: "Bcrypt failed!",
     });
   }
 
+  let payload = {
+    name: userData.name,
+    username: userData.username,
+    email: userData.email,
+  };
+
+  const token = jwt.sign(payload, process.env.JWT_SECRET_KEY);
+
   if (isPasswordSame) {
-    res.status(200).send({
+    return res.status(200).send({
       status: 200,
       message: "Successfully logged in!",
+      token: token,
     });
   } else {
-    res.status(400).send({
+    return res.status(400).send({
       status: 400,
       message: "Incorrect password, please re-enter!",
     });
