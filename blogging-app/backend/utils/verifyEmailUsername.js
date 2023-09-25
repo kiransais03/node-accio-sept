@@ -9,7 +9,7 @@ const verifyUsernameAndEmailExisits = async (email, username) => {
   // Different states of response
   if (userData.err) {
     return ERR;
-  } else if (userData.data) {
+  } else if (userData.data.length !== 0) {
     return TRUE;
   } else {
     return FALSE;

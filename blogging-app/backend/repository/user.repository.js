@@ -1,3 +1,4 @@
+const { TRUE, ERR } = require("../constants");
 const User = require("../models/User");
 
 const findUsersWithEmailOrUsername = async (email, username) => {
@@ -16,4 +17,52 @@ const findUsersWithEmailOrUsername = async (email, username) => {
   }
 };
 
-module.exports = { findUsersWithEmailOrUsername };
+const addUserToDB = async (userObj) => {
+  try {
+    await userObj.save();
+
+    return TRUE;
+  } catch (err) {
+    return ERR;
+  }
+};
+
+const getUserDataFromUsername = async (username) => {
+  const userData = {
+    data: null,
+    err: null,
+  };
+
+  try {
+    userData.data = await User.findOne({ username });
+
+    return userData;
+  } catch (err) {
+    userData.err = err;
+    return userData;
+  }
+};
+
+const getUserDataFromEmail = async (email) => {
+  const userData = {
+    data: null,
+    err: null,
+  };
+
+  try {
+    userData.data = await User.findOne({ email });
+    console.log(userData.data);
+
+    return userData;
+  } catch (err) {
+    userData.err = err;
+    return userData;
+  }
+};
+
+module.exports = {
+  findUsersWithEmailOrUsername,
+  addUserToDB,
+  getUserDataFromEmail,
+  getUserDataFromUsername,
+};
