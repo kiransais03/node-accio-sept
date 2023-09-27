@@ -5,6 +5,8 @@ const {
   addBlogToDB,
   getUserBlogsFromDB,
   deleteBlogFromDB,
+  getBlogDataFromDB,
+  updateBlogInDB,
 } = require("../repository/blog.repository");
 const { blogBelongsToUser } = require("../utils/blogBelongsToUser");
 
@@ -107,4 +109,70 @@ const deleteBlog = async (req, res) => {
   }
 };
 
-module.exports = { createBlog, getUserBlogs, deleteBlog };
+const editBlog = async (req, res) => {
+  const { blogId, title, textBody } = req.body;
+  const userId = req.locals.userId;
+
+  const blogBelongsToUserStatus = await blogBelongsToUser(blogId, userId);
+
+  if (blogBelongsToUserStatus === NOT_EXIST) {
+    return res.status(400).send({
+      status: 400,
+      message: "Blog dosen't exist",
+    });
+  } else if (blogBelongsToUserStatus === ERR) {
+    return res.status(400).send({
+      status: 400,
+      message: "DB Error: getBlogDataFromDB failed",
+    });
+  } else if (blogBelongsToUserStatus === FALSE) {
+    return res.status(403).send({
+      status: 403,
+      message:
+        "Unauthorized to edit the blog. You are not the owner of the blog. ",
+    });
+  }
+
+  const blogData = await getBlogDataFromDB(blogId);
+
+  if (blogData.err) {
+    return res.status(400).send({
+      status: 400,
+      message: "DB error: getUserBlogsFromDB failed",
+      data: userData.err,
+    });
+  }
+
+  const creationDateTime = blogData.data.creationDateTime;
+  const currentTime = Date.now();
+
+  const diff = (currentTime - creationDateTime) / (1000 * 60);
+
+  if (diff > 30) {
+    return res.status(400).send({
+      status: 400,
+      message: "Not allowed to edit after 30 minutes of creation",
+    });
+  }
+
+  const newBlogObj = {
+    title,
+    textBody,
+  };
+
+  const response = await updateBlogInDB(blogId, newBlogObj);
+
+  if (response === ERR) {
+    return res.status(400).send({
+      status: 400,
+      message: "DB Error: updateBlogInDB failed",
+    });
+  }
+
+  res.status(200).send({
+    status: 200,
+    message: "Blog edited successfully",
+  });
+};
+
+module.exports = { createBlog, getUserBlogs, deleteBlog, editBlog };

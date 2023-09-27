@@ -59,9 +59,20 @@ const deleteBlogFromDB = async (blogId) => {
   }
 };
 
+const updateBlogInDB = async (blogId, newBlogObj) => {
+  try {
+    await Blog.findByIdAndUpdate({ _id: blogId }, newBlogObj);
+
+    return TRUE;
+  } catch (err) {
+    return ERR;
+  }
+};
+
 module.exports = {
   addBlogToDB,
   getUserBlogsFromDB,
   getBlogDataFromDB,
   deleteBlogFromDB,
+  updateBlogInDB,
 };
