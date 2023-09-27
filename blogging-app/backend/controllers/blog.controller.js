@@ -1,7 +1,12 @@
 const Joi = require("joi");
 const Blog = require("../models/Blog");
-const { ERR } = require("../constants");
-const { addBlogToDB } = require("../repository/blog.repository");
+const { ERR, FALSE, NOT_EXIST } = require("../constants");
+const {
+  addBlogToDB,
+  getUserBlogsFromDB,
+  deleteBlogFromDB,
+} = require("../repository/blog.repository");
+const { blogBelongsToUser } = require("../utils/blogBelongsToUser");
 
 const createBlog = async (req, res) => {
   const isValid = Joi.object({
@@ -41,4 +46,65 @@ const createBlog = async (req, res) => {
   });
 };
 
-module.exports = { createBlog };
+const getUserBlogs = async (req, res) => {
+  const userId = req.locals.userId;
+  const page = Number(req.query.page) || 1;
+  const LIMIT = 10;
+
+  const blogsData = await getUserBlogsFromDB(userId, page, LIMIT);
+
+  if (blogsData.err) {
+    return res.status(400).send({
+      status: 400,
+      message: "DB error: getUserBlogsFromDB failed",
+      data: userData.err,
+    });
+  }
+
+  res.status(200).send({
+    status: 200,
+    message: "Fetched user blogs successfully",
+    data: blogsData.data,
+  });
+};
+
+const deleteBlog = async (req, res) => {
+  const blogId = req.params.blogid;
+  const userId = req.locals.userId;
+
+  const blogBelongsToUserStatus = await blogBelongsToUser(blogId, userId);
+
+  if (blogBelongsToUserStatus === NOT_EXIST) {
+    return res.status(400).send({
+      status: 400,
+      message: "Blog dosen't exist",
+    });
+  } else if (blogBelongsToUserStatus === ERR) {
+    return res.status(400).send({
+      status: 400,
+      message: "DB Error: getBlogDataFromDB failed",
+    });
+  } else if (blogBelongsToUserStatus === FALSE) {
+    return res.status(403).send({
+      status: 403,
+      message:
+        "Unauthorized to delete the blog. You are not the owner of the blog. ",
+    });
+  }
+
+  const response = await deleteBlogFromDB(blogId);
+
+  if (response === ERR) {
+    return res.status(400).send({
+      status: 400,
+      message: "DB Error: deleteBlogFromDB failed",
+    });
+  } else {
+    return res.status(200).send({
+      status: 200,
+      message: "Blog deleted successfully",
+    });
+  }
+};
+
+module.exports = { createBlog, getUserBlogs, deleteBlog };
