@@ -17,6 +17,22 @@ const findUsersWithEmailOrUsername = async (email, username) => {
   }
 };
 
+const getUserDataFromId = async (userId) => {
+  const userData = {
+    data: null,
+    err: null,
+  };
+
+  try {
+    userData.data = await User.findById(userId);
+
+    return userData;
+  } catch (err) {
+    userData.err = err;
+    return userData;
+  }
+};
+
 const addUserToDB = async (userObj) => {
   try {
     await userObj.save();
@@ -65,4 +81,5 @@ module.exports = {
   addUserToDB,
   getUserDataFromEmail,
   getUserDataFromUsername,
+  getUserDataFromId,
 };

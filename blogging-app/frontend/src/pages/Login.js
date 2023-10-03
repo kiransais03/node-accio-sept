@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import axios from "axios";
+import Header from "../components/common/Header";
 
 function Login() {
   const [loginId, setLoginId] = useState();
@@ -37,39 +38,42 @@ function Login() {
   };
 
   return (
-    <div style={{ padding: "3rem" }}>
-      <Form onSubmit={handleSubmit}>
-        <h1
-          style={{
-            marginBottom: "40px",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          Login into Blog App
-        </h1>
-        <Form.Group className="mb-3" controlId="loginId">
-          <Form.Label>Login ID</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Enter LoginId"
-            onChange={(e) => setLoginId(e.target.value)}
-          />
-        </Form.Group>
+    <>
+      <Header />
+      <div style={{ padding: "3rem" }}>
+        <Form onSubmit={handleSubmit}>
+          <h1
+            style={{
+              marginBottom: "40px",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            Login into Blog App
+          </h1>
+          <Form.Group className="mb-3" controlId="loginId">
+            <Form.Label>Login ID</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter LoginId"
+              onChange={(e) => setLoginId(e.target.value)}
+            />
+          </Form.Group>
 
-        <Form.Group className="mb-3" controlId="password">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
-            type="password"
-            placeholder="Enter Password"
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </Form.Group>
-        <Button type="submit" style={{ marginTop: "20px" }}>
-          Login
-        </Button>
-      </Form>
-    </div>
+          <Form.Group className="mb-3" controlId="password">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type="password"
+              placeholder="Enter Password"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </Form.Group>
+          <Button type="submit" style={{ marginTop: "20px" }}>
+            Login
+          </Button>
+        </Form>
+      </div>
+    </>
   );
 }
 

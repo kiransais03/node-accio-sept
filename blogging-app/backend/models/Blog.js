@@ -12,7 +12,6 @@ const BlogSchema = new Schema({
   },
   creationDateTime: {
     type: Date,
-    default: Date.now(),
     require: true,
   },
   userId: {

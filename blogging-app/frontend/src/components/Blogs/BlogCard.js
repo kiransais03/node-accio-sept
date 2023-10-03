@@ -1,9 +1,15 @@
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import formatDateAndTime from "../../DateTimeUtils";
+import Form from "react-bootstrap/Form";
 import axios from "axios";
+import { useState } from "react";
 
 function BlogCard({ props, setMyBlogs, myBlogs }) {
+  const [isEdit, setIsEdit] = useState(false);
+  const [newTitle, setNewTitle] = useState();
+  const [newTextBody, setNewTextBody] = useState();
+
   const token = localStorage.getItem("token");
   const handleDeleteBlog = (blogId) => {
     axios
@@ -28,6 +34,30 @@ function BlogCard({ props, setMyBlogs, myBlogs }) {
       });
   };
 
+  const handleSubmit = (e, blogId) => {
+    e.preventDefault();
+    const newBlogObj = {
+      blogId,
+      title: newTitle,
+      textBody: newTextBody,
+    };
+
+    axios
+      .put(`${process.env.REACT_APP_BACKEND_URL}/blog/edit-blog`, newBlogObj, {
+        headers: {
+          "X-Acciojob": token,
+        },
+      })
+      .then((res) => {
+        alert(res.data.message);
+        setIsEdit(false);
+        window.location.reload();
+      })
+      .catch((err) => {
+        alert(err);
+      });
+  };
+
   return (
     <Card style={{ width: "100%", marginBottom: "25px" }}>
       <Card.Body>
@@ -39,12 +69,46 @@ function BlogCard({ props, setMyBlogs, myBlogs }) {
         </div>
 
         <Card.Text>{props.textBody}</Card.Text>
-        <Button variant="primary" style={{ marginRight: "15px" }}>
+        <Button
+          variant="primary"
+          style={{ marginRight: "15px" }}
+          onClick={() => setIsEdit(!isEdit)}
+        >
           Edit Blog
         </Button>
-        <Button variant="danger" onClick={() => handleDeleteBlog(props._id)}>
+        <Button variant="danger" onClick={(e) => handleDeleteBlog(props._id)}>
           Delete Blog
         </Button>
+
+        {isEdit ? (
+          <>
+            <Form onSubmit={(e) => handleSubmit(e, props._id)}>
+              <Form.Group className="mb-3 mt-5" controlId="title">
+                <Form.Label>Title</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter Title"
+                  onChange={(e) => setNewTitle(e.target.value)}
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3" controlId="textbody">
+                <Form.Label>Text Body</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={5}
+                  placeholder="Enter Text Body"
+                  onChange={(e) => setNewTextBody(e.target.value)}
+                />
+              </Form.Group>
+              <Button type="submit" style={{ marginTop: "10px" }}>
+                Edit
+              </Button>
+            </Form>
+          </>
+        ) : (
+          <></>
+        )}
       </Card.Body>
     </Card>
   );
