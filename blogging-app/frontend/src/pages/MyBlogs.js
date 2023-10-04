@@ -33,6 +33,7 @@ function MyBlogs() {
             props={blog}
             setMyBlogs={setMyBlogs}
             myBlogs={myBlogs}
+            homepage={false}
           />
         ))}
       </div>

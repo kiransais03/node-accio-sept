@@ -10,6 +10,7 @@ const {
   addUserToDB,
   getUserDataFromUsername,
   getUserDataFromEmail,
+  getAllUsersFromDB,
 } = require("../repository/user.repository");
 
 const BCRYPT_SALTS = Number(process.env.BCRYPT_SALTS);
@@ -142,4 +143,35 @@ const loginUser = async (req, res) => {
   });
 };
 
-module.exports = { registerUser, loginUser };
+const getAllUsers = async (req, res) => {
+  const userId = req.locals.userId;
+
+  const allUsersData = await getAllUsersFromDB(userId);
+
+  if (allUsersData.err) {
+    return res.status(400).send({
+      status: 400,
+      message: "DB Error: getAllUsersFromDB failed",
+    });
+  }
+
+  let usersData = [];
+  allUsersData.data.map((user) => {
+    let userObj = {
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      _id: user._id,
+    };
+
+    usersData.push(userObj);
+  });
+
+  res.status(200).send({
+    status: 200,
+    message: "All users fetched successfully",
+    data: usersData,
+  });
+};
+
+module.exports = { registerUser, loginUser, getAllUsers };

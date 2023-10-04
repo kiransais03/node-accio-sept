@@ -18,7 +18,7 @@ const getUserBlogsFromDB = async (userId, page, LIMIT) => {
   };
 
   try {
-    blogsData.data = await Blog.find({ userId })
+    blogsData.data = await Blog.find({ userId, isDeleted: false })
       .sort({
         creationDateTime: -1,
       })
@@ -51,7 +51,10 @@ const getBlogDataFromDB = async (blogId) => {
 
 const deleteBlogFromDB = async (blogId) => {
   try {
-    await Blog.findByIdAndDelete(blogId);
+    await Blog.findByIdAndUpdate(blogId, {
+      isDeleted: true,
+      deletionDateTime: Date.now(),
+    });
 
     return TRUE;
   } catch (err) {
@@ -69,10 +72,30 @@ const updateBlogInDB = async (blogId, newBlogObj) => {
   }
 };
 
+const getFollowingBlogsFromDB = async (followingUserIds) => {
+  let followingBlogsData = {
+    data: null,
+    err: null,
+  };
+
+  try {
+    followingBlogsData.data = await Blog.find({
+      userId: { $in: followingUserIds },
+      isDeleted: false,
+    });
+
+    return followingBlogsData;
+  } catch (err) {
+    followingBlogsData.err = err;
+    return followingBlogsData;
+  }
+};
+
 module.exports = {
   addBlogToDB,
   getUserBlogsFromDB,
   getBlogDataFromDB,
   deleteBlogFromDB,
   updateBlogInDB,
+  getFollowingBlogsFromDB,
 };

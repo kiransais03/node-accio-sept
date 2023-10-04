@@ -6,6 +6,7 @@ const {
   getFollowingListFromDB,
   getFollowingDetailsFromDB,
   getFollowerListFromDB,
+  getFollowerDetailsFromDB,
 } = require("../repository/follow.repository");
 const { checkIfUserFollows } = require("../utils/checkIfUserFollows");
 const { verifyUserId } = require("../utils/verifyUserId");
@@ -205,6 +206,7 @@ const getFollowingList = async (req, res) => {
   });
 
   const followingDetails = await getFollowingDetailsFromDB(followingUserId);
+
   if (followingDetails.err) {
     return res.status(400).send({
       status: 400,
@@ -213,7 +215,7 @@ const getFollowingList = async (req, res) => {
   }
 
   let usersData = [];
-  followingDetails.map((user) => {
+  followingDetails.data.map((user) => {
     let userData = {
       name: user.name,
       username: user.username,
@@ -271,7 +273,7 @@ const getFollowerList = async (req, res) => {
   }
 
   let usersData = [];
-  followerDetails.map((user) => {
+  followerDetails.data.map((user) => {
     let userData = {
       name: user.name,
       username: user.username,

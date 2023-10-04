@@ -5,7 +5,7 @@ import Form from "react-bootstrap/Form";
 import axios from "axios";
 import { useState } from "react";
 
-function BlogCard({ props, setMyBlogs, myBlogs }) {
+function BlogCard({ props, setMyBlogs, myBlogs, homepage }) {
   const [isEdit, setIsEdit] = useState(false);
   const [newTitle, setNewTitle] = useState();
   const [newTextBody, setNewTextBody] = useState();
@@ -69,16 +69,25 @@ function BlogCard({ props, setMyBlogs, myBlogs }) {
         </div>
 
         <Card.Text>{props.textBody}</Card.Text>
-        <Button
-          variant="primary"
-          style={{ marginRight: "15px" }}
-          onClick={() => setIsEdit(!isEdit)}
-        >
-          Edit Blog
-        </Button>
-        <Button variant="danger" onClick={(e) => handleDeleteBlog(props._id)}>
-          Delete Blog
-        </Button>
+        {homepage ? (
+          <></>
+        ) : (
+          <>
+            <Button
+              variant="primary"
+              style={{ marginRight: "15px" }}
+              onClick={() => setIsEdit(!isEdit)}
+            >
+              Edit Blog
+            </Button>
+            <Button
+              variant="danger"
+              onClick={(e) => handleDeleteBlog(props._id)}
+            >
+              Delete Blog
+            </Button>
+          </>
+        )}
 
         {isEdit ? (
           <>

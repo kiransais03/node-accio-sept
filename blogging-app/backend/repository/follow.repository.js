@@ -76,12 +76,28 @@ const getFollowingDetailsFromDB = async (followingUserId) => {
   };
 
   try {
-    followingDetails.data = await User.find({ _id: { followingUserId } });
+    followingDetails.data = await User.find({ _id: { $in: followingUserId } });
 
     return followingDetails;
   } catch (err) {
     followingDetails.err = err;
     return followingDetails;
+  }
+};
+
+const getFollowerDetailsFromDB = async (followerUserId) => {
+  let followerDetails = {
+    data: null,
+    err: null,
+  };
+
+  try {
+    followerDetails.data = await User.find({ _id: { $in: followerUserId } });
+
+    return followerDetails;
+  } catch (err) {
+    followerDetails.err = err;
+    return followerDetails;
   }
 };
 
@@ -92,4 +108,5 @@ module.exports = {
   getFollowingListFromDB,
   getFollowingDetailsFromDB,
   getFollowerListFromDB,
+  getFollowerDetailsFromDB,
 };

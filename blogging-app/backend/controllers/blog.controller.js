@@ -7,8 +7,10 @@ const {
   deleteBlogFromDB,
   getBlogDataFromDB,
   updateBlogInDB,
+  getFollowingBlogsFromDB,
 } = require("../repository/blog.repository");
 const { blogBelongsToUser } = require("../utils/blogBelongsToUser");
+const { getFollowingListFromDB } = require("../repository/follow.repository");
 
 const createBlog = async (req, res) => {
   const isValid = Joi.object({
@@ -176,4 +178,44 @@ const editBlog = async (req, res) => {
   });
 };
 
-module.exports = { createBlog, getUserBlogs, deleteBlog, editBlog };
+const getHomepageBlogs = async (req, res) => {
+  const userId = req.locals.userId;
+
+  const followingList = await getFollowingListFromDB(userId);
+
+  if (followingList.err) {
+    return res.status(400).send({
+      status: 400,
+      message: "DB Error: getFollowingListFromDB failed",
+    });
+  }
+
+  let followingUserIds = [];
+  followingList.data.forEach((followObj) => {
+    followingUserIds.push(followObj.followingUserId);
+  });
+
+  const followingBlogs = await getFollowingBlogsFromDB(followingUserIds);
+
+  if (followingBlogs.err) {
+    return res.status(400).send({
+      status: 400,
+      message: "DB Error: getFollowingBlogsFromDB failed",
+      data: followingBlogs.err,
+    });
+  }
+
+  res.status(200).send({
+    status: 200,
+    message: "Fetched all homeblogs successfully",
+    data: followingBlogs.data,
+  });
+};
+
+module.exports = {
+  createBlog,
+  getUserBlogs,
+  deleteBlog,
+  editBlog,
+  getHomepageBlogs,
+};
